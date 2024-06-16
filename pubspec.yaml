@@ -1,0 +1,49 @@
+name: imasugukeepme
+description: Interval shooting, voice recording.
+version: 1.0.0
+
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.4
+  camera: ^0.9.4+21
+  path_provider: ^2.0.8
+  gallery_saver: ^2.3.2
+  intl: ^0.18.1
+  permission_handler: ^9.0.2
+  photo_manager: ^2.0.9
+  shared_preferences: ^2.0.13
+  battery_plus: ^2.1.0
+
+  document_file_save_plus: ^2.0.0
+  record: ^4.4.1
+  video_thumbnail: ^0.5.0
+  video_player: ^2.4.7
+  flutter_video_info: ^1.2.0
+  package_info_plus: ^3.0.2
+
+  image: ^4.0.8
+  flutter_native_splash: ^2.2.17
+  hooks_riverpod: ^2.0.2
+  native_device_orientation: ^1.1.4
+  wakelock: ^0.6.1+2
+
+  flutter_secure_storage: ^5.0.2
+  flutter_advanced_segment: ^3.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - lib/assets/appicon.png
+    - lib/assets/test.jpg
+    - lib/assets/sample.jpg
