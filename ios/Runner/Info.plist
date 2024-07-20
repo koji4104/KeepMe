@@ -40,11 +40,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Use Keep Me</string>
+	<string>Used by Keep Me</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Use Keep Me</string>
+	<string>Used by Keep Me</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Use Keep Me</string>
+	<string>Used by Keep Me</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

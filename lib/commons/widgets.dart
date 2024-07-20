@@ -35,7 +35,6 @@ ThemeData myLightTheme = ThemeData.light().copyWith(
   cardColor: Color(0xFFffffff),
   primaryColor: Color(0xFFfffaf0),
   dividerColor: Color(0xFFaaaaaa),
-  selectedRowColor: Color(0xFFbbbbbb),
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Color(0xFFffffff))),
   ),

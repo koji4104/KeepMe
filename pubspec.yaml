@@ -19,7 +19,7 @@ dependencies:
   permission_handler: ^9.0.2
   photo_manager: ^2.0.9
   shared_preferences: ^2.0.13
-  battery_plus: ^2.1.0
+  battery_plus: ^5.0.3
 
   document_file_save_plus: ^2.0.0
   record: ^4.4.1
