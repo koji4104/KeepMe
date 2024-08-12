@@ -5,15 +5,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
 
 import 'log_screen.dart';
-import '/controllers/environment.dart';
 import '/commons/base_screen.dart';
-import '/constants.dart';
 import '/commons/widgets.dart';
 import '/controllers/mystorage.dart';
 
 /// Settings
 class SettingsScreen extends BaseSettingsScreen {
-  //late GoogleDriveAdapter gdriveAd;
   late MyStorageNotifier mystorage;
 
   @override
@@ -22,7 +19,6 @@ class SettingsScreen extends BaseSettingsScreen {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     super.build(context, ref);
-    //this.gdriveAd = ref.watch(gdriveProvider).gdrive;
     this.mystorage = ref.watch(myStorageProvider);
 
     return Scaffold(
@@ -70,11 +66,11 @@ class SettingsScreen extends BaseSettingsScreen {
         MyValue(data: env.video_camera_height),
         MyValue(data: env.in_save_mb),
         MyValue(data: env.screensaver_mode),
-        MyValue(data: env.timer_mode),
-        MyValue(data: env.timer_stop_sec),
+        MyValue(data: env.timer_autostop_sec),
+        MyValue(data: env.language_code),
         MyLabel(''),
         MyListTile(
-          title: MyText('Logs'),
+          title1: MyText('Logs'),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -84,7 +80,7 @@ class SettingsScreen extends BaseSettingsScreen {
           },
         ),
         MyListTile(
-          title: MyText('Licenses'),
+          title1: MyText('Licenses'),
           onPressed: () async {
             final info = await PackageInfo.fromPlatform();
             Navigator.of(context).push(
@@ -95,12 +91,8 @@ class SettingsScreen extends BaseSettingsScreen {
                   applicationIcon: Container(
                     padding: EdgeInsets.all(8),
                     child: kIsWeb
-                        ? Image.network('/lib/assets/appicon.png',
-                            width: 32, height: 32)
-                        : Image(
-                            image: AssetImage('lib/assets/appicon.png'),
-                            width: 32,
-                            height: 32),
+                        ? Image.network('/lib/assets/appicon.png', width: 32, height: 32)
+                        : Image(image: AssetImage('lib/assets/appicon.png'), width: 32, height: 32),
                   ),
                 );
               }),

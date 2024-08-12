@@ -14,6 +14,8 @@ import '/commons/base_screen.dart';
 import '/commons/widgets.dart';
 import '/controllers/mystorage.dart';
 
+bool disableCamera = (Platform.isAndroid == false && Platform.isIOS == false);
+
 class PhotoListScreen extends BaseScreen {
   PhotoListScreen() {}
 
@@ -152,16 +154,12 @@ class PhotoListScreen extends BaseScreen {
     try {
       fileList.clear();
       cardList.clear();
-      if (kIsWeb) {
+      if (disableCamera) {
         for (int i = 1; i < 28; i++) {
           MyFile f = new MyFile();
           f.date = DateTime(2022, 12, i, 0, 0, 0);
-          f.path = (i % 3 == 0)
-              ? 'http://localhost:8000/test.mp4'
-              : (i % 3 == 1)
-                  ? 'http://localhost:8000/test.m4a'
-                  : 'http://localhost:8000/test.jpg';
-          f.thumb = 'http://localhost:8000/test.jpg';
+          f.path = 'test.jpg';
+          f.thumb = 'test.jpg';
           f.byte = 2 * 1024 * 1024;
           fileList.add(f);
         }
@@ -229,93 +227,45 @@ class PhotoListScreen extends BaseScreen {
 
   /// Save file
   _saveFileWithDialog(BuildContext context, WidgetRef ref) async {
-    List<MyFile> list = ref.read(selectedListProvider).list;
-    int photo_cnt = 0;
-    int files_cnt = 0;
-    for (MyFile f in list) {
-      files_cnt++;
-      if (f.path.contains('.jpg') || f.path.contains('.mp4')) photo_cnt++;
-    }
-    if (list.length == 0) {
+    List<MyFile> sellist = ref.read(selectedListProvider).list;
+    if (sellist.length == 0) {
       showSnackBar('Please select');
     } else {
-      Text msg = Text('Selected ' + ' ${list.length}');
+      Text msg = Text(l10n('save_photo_app') + ' (${sellist.length})');
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            actions: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                child: Column(children: [
-                  if (photo_cnt > 0)
-                    MyTextButton(
-                      title: l10n('save_photo_app'),
-                      onPressed: () {
-                        _saveFile(list, 1);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  MyTextButton(
-                    title: l10n('save_file_app'),
-                    onPressed: () {
-                      _saveFile(list, 2);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  /*
-                  if (mystorage.gdriveAd.isSignedIn())
-                    MyTextButton(
-                      title: l10n('save_gdrive'),
-                      onPressed: () {
-                        _saveFile(list, 4);
-                        Navigator.of(context).pop();
-                      },
-                    ),*/
-                  MyTextButton(
-                    title: l10n('cancel'),
-                    cancelStyle: true,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ]),
-              )
-            ],
-          );
+          return AlertDialog(content: msg, actions: <Widget>[
+            MyTextButton(
+              title: l10n('cancel'),
+              width: 100,
+              cancelStyle: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            MyTextButton(
+              title: l10n('OK'),
+              width: 100,
+              onPressed: () {
+                _saveFile(sellist);
+                Navigator.of(context).pop();
+              },
+            ),
+          ]);
         },
       );
     }
   }
 
-  _saveFile(List<MyFile> list, int mode) async {
+  _saveFile(List<MyFile> list) async {
     try {
-      print('-- mode=${mode}');
-      if (mode == 1) {
-        // 写真アプリ
-        for (MyFile f in list) {
-          if (f.path.contains('.jpg') || f.path.contains('.mp4')) await mystorage.saveLibrary(f.path);
-          await new Future.delayed(new Duration(milliseconds: 100));
-        }
-        showSnackBar('Save completed (${list.length} files)');
-      } else if (mode == 2) {
-        // ファイルアプリ
-        String errmsg = await mystorage.saveFolder(list);
-        if (errmsg == '') {
-          showSnackBar('Save completed (${list.length} files)');
-        } else {
-          showSnackBar('error ${errmsg}');
-        }
-        /*
-      } else if (mode == 4) {
-        // Google Drive
-        for (MyFile f in list) {
-          bool r = await mystorage.uploadKeepFile(f.path, basename(f.path));
-          if (r == false) break;
-          await new Future.delayed(new Duration(milliseconds: 100));
-        }
-        showSnackBar('Save completed (${list.length} files)');*/
+      // 写真アプリ
+      for (MyFile f in list) {
+        if (f.path.contains('.jpg') || f.path.contains('.mp4')) await mystorage.saveLibrary(f.path);
+        await new Future.delayed(new Duration(milliseconds: 100));
       }
+      showSnackBar('Save completed (${list.length} files)');
     } on Exception catch (e) {
       print('-- _saveFile ${e.toString()}');
       showSnackBar('error ${e.toString()}');
@@ -324,11 +274,11 @@ class PhotoListScreen extends BaseScreen {
 
   /// delete file
   _deleteFileWithDialog(BuildContext context, WidgetRef ref) async {
-    List<MyFile> list = ref.read(selectedListProvider).list;
-    if (list.length == 0) {
+    List<MyFile> sellist = ref.read(selectedListProvider).list;
+    if (sellist.length == 0) {
       showSnackBar('Please select');
     } else {
-      Text msg = Text(l10n('delete_files') + ' (${list.length})');
+      Text msg = Text(l10n('delete_files') + ' (${sellist.length})');
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -338,7 +288,7 @@ class PhotoListScreen extends BaseScreen {
               MyTextButton(
                 title: l10n('cancel'),
                 cancelStyle: true,
-                width: 130,
+                width: 100,
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -346,9 +296,9 @@ class PhotoListScreen extends BaseScreen {
               MyTextButton(
                 title: l10n('delete'),
                 deleteStyle: true,
-                width: 130,
+                width: 100,
                 onPressed: () {
-                  _deleteFile(list);
+                  _deleteFile(sellist);
                   Navigator.of(context).pop();
                 },
               ),
@@ -386,15 +336,14 @@ class MyCard extends ConsumerWidget {
   bool _selected = false;
   WidgetRef? _ref;
   int _width = 200;
-
   Widget? _thumbWidget;
 
   bool _init = false;
   void init(BuildContext context, WidgetRef ref) async {
     if (_init == false) {
       _init = true;
-      if (kIsWeb) {
-        _thumbWidget = Image.network('/lib/assets/test.jpg', fit: BoxFit.cover);
+      if (disableCamera) {
+        _thumbWidget = Image(image: AssetImage('lib/assets/test.jpg'), fit: BoxFit.cover);
       } else if (data.path.contains('.jpg')) {
         if (await File(data.path).exists() == true) {
           _thumbWidget = Image.file(File(data.path), fit: BoxFit.cover);
@@ -429,9 +378,11 @@ class MyCard extends ConsumerWidget {
         onTap: () {
           bSelectMode
               ? ref.read(selectedListProvider).select(data)
-              : Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => previewPage(this.index),
-                ));
+              : Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => previewPage(this.index),
+                  ),
+                );
         },
         child: getWidget(ref),
       ),
@@ -444,10 +395,8 @@ class MyCard extends ConsumerWidget {
       children: <Widget>[
         // サムネイル
         getThumbnail(),
-
         // 日付
         getDateText(),
-
         // 保存済アイコン
         if (data.isLibrary)
           Positioned(
@@ -561,8 +510,8 @@ class PreviewScreen extends ConsumerWidget {
       _init = true;
       try {
         if (data.path.contains('.jpg')) {
-          if (kIsWeb) {
-            _img = Image.network('/lib/assets/test.jpg', fit: BoxFit.contain);
+          if (disableCamera) {
+            _img = Image(image: AssetImage('lib/assets/test.jpg'), fit: BoxFit.contain);
             ref.read(previewScreenProvider).notifyListeners();
           } else {
             _img = Image.file(File(data.path), fit: BoxFit.contain);
@@ -578,7 +527,7 @@ class PreviewScreen extends ConsumerWidget {
             );
           }
         } else if (data.path.contains('.m4a')) {
-          if (kIsWeb) {
+          if (disableCamera) {
             _videoPlayer = VideoPlayerController.network(data.path)
               ..initialize().then((_) {
                 _duration = _videoPlayer!.value.duration.inSeconds;
@@ -592,7 +541,7 @@ class PreviewScreen extends ConsumerWidget {
               });
           }
         } else if (data.path.contains('.mp4')) {
-          if (kIsWeb) {
+          if (disableCamera) {
             _videoPlayer = VideoPlayerController.network(data.path)
               ..initialize().then((_) {
                 _duration = _videoPlayer!.value.duration.inSeconds;

@@ -5,17 +5,23 @@ import 'localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '/commons/widgets.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]).then((_) {
+  if (kIsWeb == false) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]).then((_) {
+      runApp(ProviderScope(child: MyApp()));
+    });
+  } else {
     runApp(ProviderScope(child: MyApp()));
-  });
+  }
 }
 
 class MyApp extends ConsumerWidget {

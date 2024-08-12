@@ -16,7 +16,6 @@ ThemeData myTheme = myDarkTheme;
 /// - myTheme.textTheme.titleMedium (size 16)
 ThemeData myDarkTheme = ThemeData.dark().copyWith(
   pageTransitionsTheme: MyPageTransitionsTheme(),
-  backgroundColor: Color(0xFF000000),
   scaffoldBackgroundColor: Color(0xFF000000),
   canvasColor: Color(0xFF444444),
   cardColor: Color(0xFF444444),
@@ -29,7 +28,6 @@ ThemeData myDarkTheme = ThemeData.dark().copyWith(
 );
 ThemeData myLightTheme = ThemeData.light().copyWith(
   pageTransitionsTheme: MyPageTransitionsTheme(),
-  backgroundColor: Color(0xFF444444),
   scaffoldBackgroundColor: Color(0xFF444444),
   canvasColor: Color(0xFFFFFFFF),
   cardColor: Color(0xFFffffff),
@@ -117,20 +115,21 @@ Widget MyTextButton(
   double fsize = 14.0;
   if (cancelStyle != null) {
     fgcol = Color(0xFFFFFFFF);
-    bgcol = Color(0xFF707070);
+    bgcol = Color(0xFF606060);
   } else if (deleteStyle != null) {
-    fgcol = Colors.redAccent;
+    fgcol = Color(0xFFB00000);
+    bgcol = Color(0xFFFFFFFF);
   }
   return Container(
     width: width != null ? width : 300,
-    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
     child: TextButton(
       style: TextButton.styleFrom(
         backgroundColor: bgcol,
         shape: RoundedRectangleBorder(borderRadius: DEF_BORDER_RADIUS),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 0),
         child: Text(title, style: TextStyle(color: fgcol, fontSize: fsize), textAlign: TextAlign.center),
       ),
       onPressed: onPressed,
@@ -146,7 +145,7 @@ Widget MyTextButton(
 /// - radio: null or true
 /// - textonly: null or true
 Widget MyListTile(
-    {required Widget title, Widget? title2, Function()? onPressed, bool? multiline, bool? radio, bool? textonly}) {
+    {required Widget title1, Widget? title2, Function()? onPressed, bool? multiline, bool? radio, bool? textonly}) {
   Widget e = Expanded(child: SizedBox(width: 8));
   if (multiline != null) e = SizedBox(width: 8);
   Widget w = SizedBox(width: 8);
@@ -154,19 +153,19 @@ Widget MyListTile(
 
   Widget btn;
   if (textonly != null) {
-    btn = title;
+    btn = title1;
   } else if (radio != null) {
-    icon = Icon(Icons.radio_button_unchecked_rounded, color: myTheme.disabledColor, size: 16.0);
+    icon = Icon(Icons.circle_outlined, color: myTheme.disabledColor, size: 22.0);
     if (radio == true) {
-      icon = Icon(Icons.radio_button_on_rounded, size: 16.0);
+      icon = Icon(Icons.check_circle, size: 24.0);
     }
-    btn = Row(children: [title, e, icon]);
+    btn = Row(children: [title1, e, icon]);
   } else if (title2 != null && onPressed != null) {
-    btn = Row(children: [title, e, title2, w, icon]);
+    btn = Row(children: [title1, e, title2, w, icon]);
   } else if (onPressed != null) {
-    btn = Row(children: [e, title, e, w, icon]);
+    btn = Row(children: [e, title1, e, w, icon]);
   } else {
-    btn = Row(children: [e, title, e]);
+    btn = Row(children: [e, title1, e]);
   }
   return Container(
     padding: EdgeInsets.symmetric(vertical: 2),

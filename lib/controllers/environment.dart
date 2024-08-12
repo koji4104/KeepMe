@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:io';
@@ -37,12 +36,19 @@ class EnvData {
 
 /// Environment
 class Environment {
-  /// 1=image 2=audio 4=video
+  /// 1=image 2=video
   EnvData take_mode = EnvData(
-    val: 1,
-    vals: [1, 2, 4],
-    keys: ['mode_image', 'mode_audio', 'mode_video'],
+    val: 2,
+    vals: [1, 2],
+    keys: ['mode_image', 'mode_video'],
     name: 'take_mode',
+  );
+
+  EnvData language_code = EnvData(
+    val: 0,
+    vals: [0, 1, 2],
+    keys: ['auto', 'en', 'ja'],
+    name: 'language_code',
   );
 
   /// Image interval seconds
@@ -61,38 +67,20 @@ class Environment {
     name: 'video_interval_sec',
   );
 
-  /// Audio interval seconds
-  EnvData audio_interval_sec = EnvData(
-    val: 600,
-    vals: IS_TEST ? [30, 60] : [300, 600],
-    keys: IS_TEST ? ['30 sec', '60 sec'] : ['5 min', '10 min'],
-    name: 'audio_interval_sec',
-  );
-
   /// Screensaver 0=No 1=Yes 2=8 seconds
   EnvData screensaver_mode = EnvData(
     val: 1,
     vals: [1, 2],
-    keys: ['ON', 'Black'],
+    keys: ['stop_button', 'black_screen'],
     name: 'screensaver_mode',
   );
 
-  /// 'Nonstop', 'AutoStop', 'SpecifiedTime'
-  EnvData timer_mode = EnvData(
-    val: 0,
-    vals: [0, 1],
-    keys: ['Nonstop', 'AutoStop'],
-    name: 'timer_mode',
-  );
-
   /// Automatic stop
-  EnvData timer_stop_sec = EnvData(
+  EnvData timer_autostop_sec = EnvData(
     val: 3600,
-    vals: IS_TEST ? [120, 3600] : [0, 3600, 7200, 14400, 43200, 86400],
-    keys: IS_TEST
-        ? ['2 min', '1 hour']
-        : ['Nonstop', '1 hour', '2 hour', '4 hour', '12 hour', '24 hour'],
-    name: 'timer_stop_sec',
+    vals: IS_TEST ? [120, 3600] : [3600, 7200, 14400, 43200, 86400],
+    keys: IS_TEST ? ['2 min', '60 min'] : ['1 hour', '2 hour', '4 hour', '12 hour', '24 hour'],
+    name: 'timer_autostop_sec',
   );
 
   EnvData image_camera_height = EnvData(
@@ -107,9 +95,7 @@ class Environment {
   EnvData video_camera_height = EnvData(
     val: 480,
     vals: [240, 480],
-    keys: kIsWeb == false && Platform.isAndroid
-        ? ['320X240', '720x480']
-        : ['352x288', '640x480'],
+    keys: kIsWeb == false && Platform.isAndroid ? ['320X240', '720x480'] : ['352x288', '640x480'],
     name: 'video_camera_height',
   );
 
@@ -131,10 +117,8 @@ class Environment {
 
   EnvData in_save_mb = EnvData(
     val: 1000,
-    vals: IS_TEST ? [100, 1000] : [500, 1000, 2000, 4000, 8000],
-    keys: IS_TEST
-        ? ['100 mb', '1000 mb']
-        : ['500 mb', '1 gb', '2 gb', '4 gb', '8 gb'],
+    vals: IS_TEST ? [100, 1000] : [500, 1000, 2000, 4000],
+    keys: IS_TEST ? ['100 MB', '1000 MB'] : ['500 MB', '1 GB', '2 GB', '4 GB'],
     name: 'in_save_mb',
   );
 
@@ -144,8 +128,7 @@ class Environment {
   }
 }
 
-final environmentProvider =
-    ChangeNotifierProvider((ref) => environmentNotifier(ref));
+final environmentProvider = ChangeNotifierProvider((ref) => environmentNotifier(ref));
 
 class environmentNotifier extends ChangeNotifier {
   Environment env = Environment();
@@ -157,23 +140,23 @@ class environmentNotifier extends ChangeNotifier {
   }
 
   Future load() async {
-    print('-- load()');
+    if (kIsWeb) return;
+    print('-- env load()');
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       _loadSub(prefs, env.take_mode);
+      _loadSub(prefs, env.language_code);
       _loadSub(prefs, env.image_interval_sec);
       _loadSub(prefs, env.video_interval_sec);
-      _loadSub(prefs, env.audio_interval_sec);
       _loadSub(prefs, env.screensaver_mode);
-      _loadSub(prefs, env.timer_mode);
-      _loadSub(prefs, env.timer_stop_sec);
+      _loadSub(prefs, env.timer_autostop_sec);
       _loadSub(prefs, env.image_camera_height);
       _loadSub(prefs, env.video_camera_height);
       _loadSub(prefs, env.camera_zoom);
       _loadSub(prefs, env.camera_pos);
       _loadSub(prefs, env.in_save_mb);
     } on Exception catch (e) {
-      print('-- load() e=' + e.toString());
+      print('-- err load() e=' + e.toString());
     }
   }
 
@@ -196,20 +179,17 @@ class environmentNotifier extends ChangeNotifier {
       case 'take_mode':
         ret = env.take_mode;
         break;
+      case 'language_code':
+        ret = env.language_code;
+        break;
       case 'image_interval_sec':
         ret = env.image_interval_sec;
         break;
       case 'video_interval_sec':
         ret = env.video_interval_sec;
         break;
-      case 'audio_interval_sec':
-        ret = env.audio_interval_sec;
-        break;
-      case 'timer_mode':
-        ret = env.timer_mode;
-        break;
-      case 'timer_stop_sec':
-        ret = env.timer_stop_sec;
+      case 'timer_autostop_sec':
+        ret = env.timer_autostop_sec;
         break;
       case 'screensaver_mode':
         ret = env.screensaver_mode;

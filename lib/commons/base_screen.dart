@@ -4,7 +4,6 @@ import '/localizations.dart';
 import '/commons/common.dart';
 import '/commons/widgets.dart';
 import '/controllers/environment.dart';
-import '/constants.dart';
 
 /// BaseScreen
 class BaseScreen extends ConsumerWidget {
@@ -24,12 +23,30 @@ class BaseScreen extends ConsumerWidget {
     this.env = ref.watch(environmentProvider).env;
     this.context = context;
     this.ref = ref;
+
+    myLanguageCode = this.env.language_code.val == 0
+        ? ''
+        : this.env.language_code.val == 1
+            ? 'en'
+            : 'ja';
+
     edge.getEdge(context, ref);
     if (bInit == false) {
       bInit = true;
       Future.delayed(Duration.zero, () => init());
     }
+    if (myLanguageCode != getLanguageCode()) {
+      myLanguageCode = getLanguageCode();
+    }
     return Container();
+  }
+
+  String getLanguageCode() {
+    String code = '';
+    if (env.language_code.val == 1)
+      code = 'en';
+    else if (env.language_code.val == 2) code = 'ja';
+    return code;
   }
 
   Future<int?> NavigatorPush(var screen) async {
@@ -40,7 +57,7 @@ class BaseScreen extends ConsumerWidget {
   }
 
   String l10n(String text) {
-    return Localized.of(this.context).text(text);
+    return Localized.text(text);
   }
 
   void showSnackBar(String msg) {
@@ -72,14 +89,15 @@ class BaseSettingsScreen extends BaseScreen {
   }
 
   Widget MyValue({required EnvData data}) {
-    TextStyle ts = Theme.of(context).textTheme.bodyMedium!;
+    TextStyle ts = myTheme.textTheme.bodyMedium!;
     return MyListTile(
-      title: Text(l10n(data.name), style: ts),
+      title1: Text(l10n(data.name), style: ts),
       title2: Text(l10n(data.key), style: ts),
       onPressed: () {
         if (is2screen()) {
           this.rightScreen = RadioListScreen(data: data);
           this.rightScreen!.build(context, ref);
+          redraw();
         } else {
           NavigatorPush(RadioListScreen(data: data));
         }
@@ -116,7 +134,6 @@ class RadioListScreen extends BaseSettingsScreen {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n(data.name)),
-        backgroundColor: Theme.of(context).backgroundColor,
       ),
       body: Container(margin: edge.settingsEdge, child: getList()),
     );
@@ -141,10 +158,10 @@ class RadioListScreen extends BaseSettingsScreen {
 
   Widget MyRadioListTile(
       {required String title, required int value, required int groupValue, required void Function()? onChanged}) {
-    TextStyle ts = TextStyle(fontSize: 16);
+    TextStyle ts = myTheme.textTheme.bodyMedium!;
     return Container(
       child: MyListTile(
-        title: Text(title, style: ts),
+        title1: Text(title, style: ts),
         radio: groupValue == value,
         onPressed: onChanged,
       ),
