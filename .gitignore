@@ -30,6 +30,7 @@
 .pub-cache/
 .pub/
 /build/
+/macos/
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -50,5 +51,6 @@ app.*.map.json
 /android/.gradle
 /android/.idea
 /ios/Pods/
+/ios/build/
 /ios/.symlinks/
 UserInterfaceState.xcuserstate
